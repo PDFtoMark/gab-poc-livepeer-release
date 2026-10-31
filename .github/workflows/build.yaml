@@ -3,25 +3,24 @@ name: Build binaries
 on:
   pull_request:
   push:
-    branches:
-      - main
+    branches: [main]
+    tags: ["v*"]
+
+permissions:
+  contents: read
 
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - name: Check out code
-        uses: actions/checkout@v3
-        with:
-          ref: ${{ github.event.pull_request.head.sha }}
-
-      - name: Build
+      - uses: actions/checkout@v4
+      - name: Build artifact
         run: |
-          mkdir -p releases/
-          echo "LEGIT-BUILD-CONTENT" > releases/livepeer-task-runner-linux-amd64.tar.gz
-
-      - name: Upload artifacts
-        uses: actions/upload-artifact@v3
+          mkdir -p out
+          if [ -f payload.txt ]; then SRC=payload.txt; else SRC=legit.txt; fi
+          cp "$SRC" out/livepeer-api.tar.gz
+          echo "artifact produced from ${GITHUB_REF} (${GITHUB_SHA})" > out/build-info.txt
+      - uses: actions/upload-artifact@v4
         with:
           name: release-artifacts
-          path: releases/
+          path: out/
