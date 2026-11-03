@@ -1,0 +1,17 @@
+name: tag-checkout-probe
+on:
+  workflow_dispatch:
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    steps:
+      - name: checkout tag-only ref using same action/ref as release.yaml
+        uses: actions/checkout@master
+        with:
+          fetch-depth: 0
+          ref: v2.5.5
+      - name: verify
+        run: |
+          echo "checked out: $(git rev-parse HEAD)"
+          echo "describe: $(git describe --tags --always)"
+          echo "CHECKOUT_TAG_OK"
